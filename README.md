@@ -1,67 +1,67 @@
-# 项目说明
-## 简介
+# project instruction
+## Introduction
 
-经常有互联网圈的朋友们来咨询关于用``Spring Cloud``全家桶开发微服务应用的问题、以及如何在``Kubernetes``上编排部署``Spring Cloud``微服务、如何寻址的问题，因此萌发了将我以前在几个互联网项目中开发和k8s部署微服务实战中积累的最佳实践提炼出来分享的想法。本项目为一个浓缩了Spring Cloud Microservices on Kubernetes最佳实践的mini微服务应用参考，用于最佳实践的分享，技术演示了：
+I often have friends from the Internet circle to ask questions about developing microservice applications with ``Spring Cloud``, and how to deploy ``Spring Cloud`` microservices on ``Kubernetes``, how to address them. The problem, therefore, has sprouted the idea of ​​refining the best practices I have accumulated in several Internet projects and k8s deployment microservices. This project is a mini microservices reference that condenses Spring Cloud Microservices on Kubernetes best practices for sharing best practices, technical demonstrations:
 
-1. 一个可快速复制的采用``Spring Cloud``全家桶来开发微服务应用的框架；
-2. 一套可快速复制的将``Spring Cloud``微服务部署到``Kubernetes``集群上的部署方案和YAML部署脚本（在生产项目应用中，这些YAML脚本应该需要部署到公司的CI & CD pipeline上以实现自动化的CI & CD）。
-
-
-## 技术栈
-
-1. ``Kubernetes``和``Rancher Server``：作为自动化部署、伸缩和编排微服务容器集群的PaaS平台。
-
-2. ``Spring Cloud``全家桶：用于开发微服务应用。采用目前最稳定的``Edgware RELEASE``，最佳搭配的全家桶组件有：
-    - 开发：``Zuul``作为API Gateway，``Eureka``作为服务注册治理中心，``Spring Cloud Config``作为配置中心，``Hystrix``作为熔断器、降级和限流，``Ribbon``作为负载均衡，``Feign``作为声明式的REST Client。
-    - 监控：``Spring Boot Actuator``+``Spring Boor Admin``提供每个微服务的自省和监控能力、以及可视化监控UI，``Hystrix Dashboard``用于可视化监控Hystrix Metrics，``Turbine``用于聚合各个微服务的Hystrix Metrics，``Sleuth``和``Zipkin``用于分布式调用跟踪。
-
-3. ``Swagger`` & ``Swagger UI``：用于REST API文档和兼作REST API调试。
-
-4. ``MyBatis``：用于``MySQL``数据库访问ORM。
-
-5. ``RabbitMQ``：用于可靠的消息服务中间件。
-
-6. ``Flyway``：秉承``DevOps``的``一切均代码``思想，采用``Flyway``用于数据库升级的配置管理。
-
-7. 第三库：``lombok``，``guava``
+1. A fast-replicating framework for developing microservice applications using the ``Spring Cloud`` family bucket;
+2. A set of quick-to-copy deployment scenarios for deploying ``Spring Cloud`` microservices to ``Kubernetes`` clusters and YAML deployment scripts (in production project applications, these YAML scripts should be deployed to the company's CI) & CD pipeline to automate CI & CD).
 
 
-## 在线演示
+## Technology Stack
 
-为方便朋友们“无痛”体验``Spring Cloud``微服务和``Kubernetes``集群部署，我在Azure云上购买了3台虚拟机，自己搭建了一套``Kubernetes``集群，并将该mini微服务演示项目和底层依赖部署到这套集群上。开放出一个read only的``Kubernetes``集群体验账号供大家体验。
+1. ``Kubernetes`` and ``Rancher Server``: as a PaaS platform for automated deployment, scaling and orchestration of microservice container clusters.
 
-``Kubernetes``集群体验账号：
+2. ``Spring Cloud`` family bucket: used to develop microservice applications. With the most stable ``Edgware RELEASE`` currently available, the best match for the whole family of bucket components is:
+    - Development: ``Zuul`` as API Gateway, ``Eureka`` as service registration management center, ``Spring Cloud Config`` as configuration center, ``Hystrix`` as fuse, downgrade and current limit, `` Ribbon`` as load balancing, ``Feign`` as a declarative REST Client.
+    - Monitoring: ``Spring Boot Actuator`````Spring Boor Admin`` provides introspection and monitoring capabilities for each microservice, as well as visual monitoring UI, ``Hystrix Dashboard`` for visual monitoring of Hystrix Metrics, ``Turbine ``Hystrix Metrics, ``Sleuth`` and ``Zipkin`` for aggregating individual microservices for distributed call tracking.
+
+3. ``Swagger`` & ``Swagger UI``: for REST API documentation and for REST API debugging.
+
+4. ``MyBatis``: for the ``MySQL`` database to access the ORM.
+
+5. ``RabbitMQ``: for reliable messaging service middleware.
+
+6. ``Flyway``: Inheriting ``DevOps`` ``all code`` ideas, using ``Flyway`` for database upgrade configuration management.
+
+7. Third library: ``lombok``, ``guava``
+
+
+## Online Demo
+
+In order to facilitate the "painless" experience of the friends ``Spring Cloud`` microservices and ``Kubernetes`` cluster deployment, I purchased 3 virtual machines on the Azure cloud and built a ``Kubernetes`` cluster. The mini microservice demo project and the underlying dependencies are deployed to the cluster. Open a read only ``Kubernetes`` cluster experience account for everyone to experience.
+
+``Kubernetes`` cluster experience account:
 - Web Console URL: master1.k8s.kyletiger.com
 - Login Name: spring
 - Password: spring123456
 
-3台虚拟机的配置如下：
-1. Kubernetes Master node：1台，配置为标准 F2s_v2 (2 vcpu，4 GB 内存)；
-2. Kubernetes Worker node：2台，配置为标准 F1s (1 vcpu，2 GB 内存)。
+The configuration of the three virtual machines is as follows:
+1. Kubernetes Master node: 1 set, configured as standard F2s_v2 (2 vcpu, 4 GB memory);
+2. Kubernetes Worker node: 2 units, configured as standard F1s (1 vcpu, 2 GB memory).
 
-请：不要流量攻击这套集群或漏洞扫描！这套系统只是纯粹用于交流和方便网友，小成本的部署环境而已，没有$去购买高性能虚拟机和WAF网关、抗DDoS等安全防护服务。
+Please: Do not traffic to attack this cluster or vulnerability scan! This system is purely for communication and convenience for users, a small cost deployment environment, no need to buy high-performance virtual machines and WAF gateways, anti-DDoS and other security protection services.
 
 
-### 服务字典
+### Service Dictionary
 
-注意：
-1. Kubernetes集群里所有暴露出来可供外网访问的服务，纯粹只是为了方便网友在学习spring cloud时远程使用现成的基础服务（例如，Eureka服务注册中心），才特地采用``type: NodePort``部署方式额外再将该服务expose在外网IP上；
-2. 对于实际项目，需采用``type: LoadBalancer``部署方案来expose服务，只对内网访问开放！
+note:
+1. All the services exposed in the Kubernetes cluster that can be accessed by the external network are purely for the convenience of users to use the off-the-shelf basic services (for example, the Eureka Service Registration Center) when learning spring cloud, especially to use ``type: NodePort`. `Deployment mode additionally exposes the service to the external network IP;
+2. For the actual project, you need to use the ``type: LoadBalancer`` deployment plan to expose the service, only open to the intranet access!
 
-服务 | 内网服务寻址 | 内网服务端口 | 外网DNS寻址 | 外网服务端口
+Services | Intranet Service Addressing | Intranet Service Port | External Network DNS Addressing | External Network Service Port
 ---|---|---|---|---
-服务注册中心HA-0 | eureka-0.discovery.default.svc.cluster.local | 8761 | master1.k8s.kyletiger.com | 38761
-服务注册中心HA-1 | eureka-1.discovery.default.svc.cluster.local | 8761 | node1.k8s.kyletiger.com | 38762
-配置中心HA | 由服务消费者到Eureka Server上查询寻址方式 | 8888 | node1.k8s.kyletiger.com | 38888
-API Gateway Zuul HA | 由服务消费者到服务注册中心上查询寻址方式 | 8080 | master1.k8s.kyletiger.com | 38080
-Hystrix Dashboard | 由服务消费者到服务注册中心上查询寻址方式 | 9000 | node2.k8s.kyletiger.com | 39000
-Hystrix Turbine | 由服务消费者到服务注册中心上查询寻址方式 | 9100 | master1.k8s.kyletiger.com | 39100
-Spring Boot Admin | 由服务消费者到服务注册中心上查询寻址方式 | 9090 | node2.k8s.kyletiger.com | 39090
-Employee微服务 | 由服务消费者到服务注册中心上查询寻址方式 | 8000 | node2.k8s.kyletiger.com | 38000
-Department微服务 | 由服务消费者到服务注册中心上查询寻址方式 | 8100 | node2.k8s.kyletiger.com | 38100
+Service Registry HA-0 | eureka-0.discovery.default.svc.cluster.local | 8761 | master1.k8s.kyletiger.com | 38761
+Service Registry HA-1 | eureka-1.discovery.default.svc.cluster.local | 8761 | node1.k8s.kyletiger.com | 38762
+Configuration Center HA | Query Addressing by Service Consumer to Eureka Server | 8888 | node1.k8s.kyletiger.com | 38888
+API Gateway Zuul HA | Query addressing by service consumer to service registry | 8080 | master1.k8s.kyletiger.com | 38080
+Hystrix Dashboard | Query by User Service to Service Registry | 9000 | node2.k8s.kyletiger.com | 39000
+Hystrix Turbine | Query by the service consumer to the service registry | 9100 | master1.k8s.kyletiger.com | 39100
+Spring Boot Admin | Querying Addressing by Service Consumer to Service Registry | 9090 | node2.k8s.kyletiger.com | 39090
+Employee microservice | Query addressing by service consumer to service registry | 8000 | node2.k8s.kyletiger.com | 38000
+Department Micro Service | Query Mode by Service Consumer to Service Registry | 8100 | node2.k8s.kyletiger.com | 38100
 
 
-- Kubernetes集群管理:
+- Kubernetes cluster management:
 
 ![](images/2018-12-13-02-50-08.png)
 
@@ -71,7 +71,7 @@ Department微服务 | 由服务消费者到服务注册中心上查询寻址方�
 
 ![](images/2018-12-13-03-07-37.png)
 
-- 微服务注册中心：
+- Microservice Registration Center:
 
 ![](images/2018-12-14-01-45-04.png)
 
@@ -89,14 +89,14 @@ Department微服务 | 由服务消费者到服务注册中心上查询寻址方�
 ![](images/2018-12-14-01-50-37.png)
 
 
-## 更新计划
+## Update plan
 
-1. 采用``RabbitMQ``让各个微服务实例异步吐出Hystrix Metrics和``Turbine``进行异步采集聚合。
-2. 部署上``Zipkin``和``Elasticsearch``：估计虚拟机的配置需要升级才能跑得动:(。
-3. ``TCC``柔性分布式事务处理的演示：需要再开发几个演示``TCC``的微服务。
-4. ``Spring Data JPA Repositories``+``Hibernate``：演示另一种数据库ORM方案。
-5. 文档：增加&完善文档。
+1. Use ``RabbitMQ`` to let each microservice instance asynchronously spit out Hystrix Metrics and ``Turbine`` for asynchronous collection aggregation.
+2. Deploy ``Zipkin`` and ``Elasticsearch``: Estimate the configuration of the virtual machine needs to be upgraded to run: (.
+3. Demonstration of ``TCC`` flexible distributed transaction processing: Several microservices demonstrating ``TCC`` need to be developed.
+4. ``Spring Data JPA Repositories``+``Hibernate``: Demonstrate another database ORM solution.
+5. Documentation: Add & improve documentation.
 
 
-## 结语
-感谢你的耐心阅读，如有对本项目中的Spring Cloud & Kubernetes的使用或者对本人的编码风格有更好的想法或者建议，欢迎通过邮件 <lisong.zheng@gmail.com>或QQ <40000646@qq.com>与我取得联系，万分感谢。
+## Conclusion
+Thank you for your patience. If you have any questions about Spring Cloud & Kubernetes in this project or have a better idea or suggestion about your coding style, please feel free to email <lisong.zheng@gmail.com> or QQ <40000646@qq .com> Thanks to me for getting in touch.
